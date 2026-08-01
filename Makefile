@@ -39,6 +39,13 @@ setup: ## 🛠️ Inicializa submódulos, instala dependências e configura arqu
 dev: ## 🚀 Executa Frontend (Vite) e Backend (Go) simultaneamente
 	@echo "$(GREEN)🐳 Garantindo que o PostgreSQL esteja em execução (Docker)...$(RESET)"
 	cd meuemprego-backend && docker compose up -d postgres
+	@echo "$(GREEN)⏳ Aguardando PostgreSQL ficar saudável...$(RESET)"
+	@for i in $$(seq 1 30); do \
+		status=$$(docker inspect --format '{{.State.Health.Status}}' runter_postgres 2>/dev/null || echo starting); \
+		[ "$$status" = "healthy" ] && break; \
+		sleep 1; \
+	done; \
+	[ "$$status" = "healthy" ] || (echo "$(RED)❌ PostgreSQL não ficou saudável a tempo$(RESET)" && exit 1)
 	@echo "$(GREEN)🚀 Iniciando Frontend (Vite) e Backend (Go API) simultaneamente...$(RESET)"
 	@echo "$(YELLOW)Pressione Ctrl+C para encerrar ambos os serviços.$(RESET)"
 	@(trap 'kill 0' INT TERM; \
