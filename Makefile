@@ -37,9 +37,11 @@ setup: ## 🛠️ Inicializa submódulos, instala dependências e configura arqu
 	@echo "$(GREEN)✅ Setup concluído com sucesso!$(RESET)"
 
 dev: ## 🚀 Executa Frontend (Vite) e Backend (Go) simultaneamente
+	@echo "$(GREEN)🐳 Garantindo que o PostgreSQL esteja em execução (Docker)...$(RESET)"
+	cd meuemprego-backend && docker compose up -d postgres
 	@echo "$(GREEN)🚀 Iniciando Frontend (Vite) e Backend (Go API) simultaneamente...$(RESET)"
 	@echo "$(YELLOW)Pressione Ctrl+C para encerrar ambos os serviços.$(RESET)"
-	@(trap 'kill 0' SIGINT SIGTERM; \
+	@(trap 'kill 0' INT TERM; \
 		(cd meuemprego-backend && (if command -v air >/dev/null 2>&1; then air; else go run cmd/api/main.go; fi)) & \
 		(cd meuemprego-frontend && npm run dev) & \
 		wait)
@@ -51,6 +53,8 @@ dev-docker: ## 🐳 Inicia o Backend via Docker Compose e o Frontend localmente
 	cd meuemprego-frontend && npm run dev
 
 dev-backend: ## 🐹 Executa apenas a API Backend Go (com Air ou go run)
+	@echo "$(GREEN)🐳 Garantindo que o PostgreSQL esteja em execução (Docker)...$(RESET)"
+	cd meuemprego-backend && docker compose up -d postgres
 	@echo "$(GREEN)🐹 Iniciando Backend Go...$(RESET)"
 	cd meuemprego-backend && (if command -v air >/dev/null 2>&1; then air; else go run cmd/api/main.go; fi)
 
