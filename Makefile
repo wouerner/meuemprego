@@ -5,7 +5,7 @@
 # contendo Frontend (Vue 3 / Vite) e Backend (Go API).
 # ==============================================================================
 
-.PHONY: help setup dev dev-docker dev-backend dev-frontend build test clean update-submodules status
+.PHONY: help setup dev dev-docker dev-backend dev-frontend build test clean update-submodules status push
 
 # Cores para o terminal
 CYAN    := \033[36m
@@ -87,6 +87,17 @@ update-submodules: ## 🔄 Atualiza submódulos para os commits mais recentes da
 	@echo "$(GREEN)🔄 Atualizando submódulos para o topo da branch remote...$(RESET)"
 	git submodule update --remote --merge
 	@echo "$(GREEN)✅ Submódulos atualizados!$(RESET)"
+
+push: ## 📤 Envia commits dos submódulos (backend + frontend) e do monorepo raiz
+	@for repo in meuemprego-backend meuemprego-frontend .; do \
+		echo "$(GREEN)🚀 Enviando $$repo...$(RESET)"; \
+		if [ -n "$$(cd $$repo && git status --porcelain)" ]; then \
+			echo "$(YELLOW)⚠️  $$repo tem alterações não commitadas — pulando.$(RESET)"; \
+			continue; \
+		fi; \
+		(cd $$repo && git push origin master) || exit 1; \
+	done
+	@echo "$(GREEN)✅ Push concluído em todos os repositórios!$(RESET)"
 
 status: ## 📊 Exibe o status do Git no Monorepo e em todos os submódulos
 	@echo "$(CYAN)--- Status do Monorepo Raiz ---$(RESET)"
