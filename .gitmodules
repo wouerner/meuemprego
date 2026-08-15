@@ -1,6 +1,6 @@
 [submodule "meuemprego-frontend"]
 	path = meuemprego-frontend
-	url = git@github.com:wouerner/meuemprego-frontend.git
+	url = https://github.com/wouerner/meuemprego-frontend.git
 [submodule "meuemprego-backend"]
 	path = meuemprego-backend
-	url = git@github.com:wouerner/meuemprego-backend.git
+	url = https://github.com/wouerner/meuemprego-backend.git

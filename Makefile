@@ -5,7 +5,7 @@
 # contendo Frontend (Vue 3 / Vite) e Backend (Go API).
 # ==============================================================================
 
-.PHONY: help setup dev dev-docker dev-backend dev-frontend build test clean update-submodules status push
+.PHONY: help setup dev dev-docker dev-backend dev-frontend build test clean update-submodules status push restart
 
 # Cores para o terminal
 CYAN    := \033[36m
@@ -22,6 +22,17 @@ help: ## ❓ Exibe esta lista de comandos disponíveis
 	@echo ""
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(CYAN)%-20s$(RESET) %s\n", $$1, $$2}'
 	@echo ""
+
+restart: clean ## 🔄 Derruba os containers, mata processos pendentes, limpa e reinicia o projeto em modo dev
+	@echo "$(YELLOW)🛑 Parando serviços e limpando o ambiente...$(RESET)"
+	@cd meuemprego-backend && docker compose down -v || true
+	@pkill -9 -f 'npm run dev' || true
+	@pkill -9 -f 'vite' || true
+	@pkill -9 -f 'go run cmd/api/main.go' || true
+	@pkill -9 -f 'air' || true
+	@sleep 2
+	@echo "$(GREEN)✅ Ambiente limpo! Iniciando novamente...$(RESET)"
+	@$(MAKE) dev
 
 setup: ## 🛠️ Inicializa submódulos, instala dependências e configura arquivos .env
 	@echo "$(GREEN)🔄 Inicializando submódulos Git...$(RESET)"
