@@ -1,0 +1,46 @@
+# =====================================================================
+# Deploy stack para Coolify — meuemprego.pro
+# Uso: docker compose -f docker-compose.deploy.yml up -d --build
+#
+# NOTA: O banco de dados é EXTERNO (gerenciado/nuvem). Informe as
+# credenciais via variáveis de ambiente no Coolify.
+# =====================================================================
+
+services:
+  backend:
+    build:
+      context: ./meuemprego-backend
+      dockerfile: Dockerfile.prod
+    container_name: meuemprego_api
+    restart: unless-stopped
+    ports:
+      - "${PORT:-8080}:8080"
+    environment:
+      PORT: "8080"
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_SSLMODE: ${DB_SSLMODE:-require}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRATION_HOURS: ${JWT_EXPIRATION_HOURS:-24}
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/api/v1/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  frontend:
+    build:
+      context: ./meuemprego-frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+    container_name: meuemprego_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8081}:80"
+    depends_on:
+      - backend
